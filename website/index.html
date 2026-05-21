@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outlook & SharePoint Sync Utility</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b0f19;
+            --bg-surface: rgba(17, 24, 39, 0.6);
+            --bg-surface-hover: rgba(31, 41, 55, 0.8);
+            --color-primary: #8b5cf6;
+            --color-primary-glow: rgba(139, 92, 246, 0.4);
+            --color-secondary: #06b6d4;
+            --color-secondary-glow: rgba(6, 182, 212, 0.4);
+            --color-accent: #f43f5e;
+            --color-text-main: #f3f4f6;
+            --color-text-muted: #9ca3af;
+            --border-glow: rgba(255, 255, 255, 0.08);
+            --border-glow-active: rgba(139, 92, 246, 0.3);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-title: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--color-text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-base);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header / Navbar */
+        header {
+            padding: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glow);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 15, 25, 0.8);
+        }
+
+        .logo {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px var(--color-primary-glow);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--color-text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        nav a:hover {
+            color: var(--color-text-main);
+        }
+
+        .btn-nav {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: #fff !important;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--color-primary-glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0 4rem;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-family: var(--font-title);
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #a855f7 50%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            color: var(--color-text-muted);
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+            max-width: 540px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--color-primary-glow);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px var(--color-primary-glow), 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--color-text-main);
+            border: 1px solid var(--border-glow);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--color-text-muted);
+            transform: translateY(-3px);
+        }
+
+        /* Glass Panel / App Mockup */
+        .mockup-container {
+            position: relative;
+        }
+
+        .glass-panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* App Title Bar Mock */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .app-title {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* Simulated Console / Terminal */
+        .terminal {
+            background: #05070c;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .terminal-line {
+            margin-bottom: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(5px);
+            animation: fadeInUp 0.4s forwards;
+        }
+
+        .timestamp {
+            color: #6b7280;
+            flex-shrink: 0;
+        }
+
+        .info {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .msg-text {
+            color: #e5e7eb;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-title);
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 span {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header p {
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.05rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 2.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-glow-active);
+            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a78bfa;
+            font-size: 1.5rem;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--color-primary);
+            color: #fff;
+            box-shadow: 0 0 15px var(--color-primary-glow);
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-title);
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Flow / Timeline Section */
+        .workflow {
+            padding: 6rem 0;
+            background: rgba(17, 24, 39, 0.3);
+            border-radius: 30px;
+            border: 1px solid var(--border-glow);
+            margin: 2rem 0;
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .flow-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            transition: border-color 0.3s;
+        }
+
+        .flow-card:hover {
+            border-color: var(--color-secondary);
+        }
+
+        .flow-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            color: #0b0f19;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 0 10px var(--color-secondary-glow);
+        }
+
+        .flow-card h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-card p {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+        }
+
+        /* Interactive Simulator Section */
+        .simulator-section {
+            padding: 6rem 0;
+        }
+
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .sim-form {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .sim-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .sim-label {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .sim-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #080c14;
+            border: 1px solid var(--border-glow);
+            border-radius: 8px;
+            color: #fff;
+            font-family: var(--font-main);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .sim-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+        }
+
+        .sim-output-card {
+            background: #05070c;
+            border: 1px solid var(--border-glow-active);
+            border-radius: 16px;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.05);
+        }
+
+        .sim-output-title {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+            color: var(--color-secondary);
+        }
+
+        .out-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .out-label {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .out-val {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            word-break: break-all;
+        }
+
+        .out-val-category {
+            color: #a78bfa;
+            font-weight: 700;
+        }
+
+        .out-val-filename {
+            color: #38bdf8;
+        }
+
+        .out-val-path {
+            color: #fb923c;
+            font-size: 0.85rem;
+        }
+
+        /* Setup / Deployment Guide */
+        .deployment {
+            padding: 6rem 0;
+            border-top: 1px solid var(--border-glow);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-glow);
+            padding-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-text-muted);
+            font-family: var(--font-title);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--color-text-main);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .step-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .step-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-info h4 {
+            font-family: var(--font-title);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-info p {
+            color: var(--color-text-muted);
+            font-size: 0.95rem;
+        }
+
+        .code-box {
+            background: #05070c;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 0.75rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--color-text-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--border-glow);
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Keyframes */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .pulsing-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--color-primary-glow) 0%, transparent 70%);
+            top: -150px;
+            right: -150px;
+            pointer-events: none;
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        /* Responsive Layouts */
+        @media (max-width: 968px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                padding: 4rem 0;
+            }
+            .hero-text {
+                text-align: center;
+            }
+            .hero-text p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-buttons {
+                justify-content: center;
+            }
+            .simulator-grid {
+                grid-template-columns: 1fr;
+            }
+            .flow-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .flow-grid {
+                grid-template-columns: 1fr;
+            }
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            nav ul {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="pulsing-glow"></div>
+
+<header>
+    <div class="container" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        <div class="logo">
+            <div class="logo-icon">&#8646;</div>
+            Sync Utility
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#simulator">Simulator</a></li>
+                <li><a href="#setup">Setup</a></li>
+                <li><a href="https://github.com/shankarprasadtn/Outlook-email-backup.git" target="_blank" class="btn-nav">GitHub Repository</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Automate Your <span>Outlook to SharePoint</span> Attachments Pipeline</h1>
+            <p>A modern Windows desktop application designed to monitor your Outlook folders, extract email attachments with custom subject or file keyword filters, rename them dynamically, and synchronize them directly to SharePoint or OneDrive.</p>
+            <div class="hero-buttons">
+                <a href="#setup" class="btn btn-primary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download App
+                </a>
+                <a href="https://github.com/shankarprasadtn/Outlook-email-backup.git" target="_blank" class="btn btn-secondary">
+                    Source Code
+                </a>
+            </div>
+        </div>
+        <div class="mockup-container">
+            <div class="glass-panel">
+                <div class="app-header">
+                    <div class="dots">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-yellow"></div>
+                        <div class="dot dot-green"></div>
+                    </div>
+                    <div class="app-title">OutlookSharePointSync.exe - Live Console</div>
+                    <div style="width: 32px;"></div>
+                </div>
+                <div class="terminal" id="console">
+                    <!-- Console lines will load here via Javascript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section class="workflow">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It <span>Works</span></h2>
+                <p>The synchronization engine operates completely in the background or on manual triggers to copy your scanner files safely.</p>
+            </div>
+            <div class="flow-grid">
+                <div class="flow-card">
+                    <div class="flow-num">1</div>
+                    <h4>Monitor Folder</h4>
+                    <p>Scans a selected Outlook folder (e.g. "HP Scan") for unread emails on a schedule.</p>
+                </div>
+                <div class="flow-card">
+                    <div class="flow-num">2</div>
+                    <h4>Apply Keywords</h4>
+                    <p>Matches subject lines or attachment filenames for "onboarding", "spare", or "replacement".</p>
+                </div>
+                <div class="flow-card">
+                    <div class="flow-num">3</div>
+                    <h4>Intelligent Rename</h4>
+                    <p>Prefixes attachments with category and dates, e.g. <code>spare_20260521_File.pdf</code>.</p>
+                </div>
+                <div class="flow-card">
+                    <div class="flow-num">4</div>
+                    <h4>SharePoint Sync</h4>
+                    <p>Copies files to the designated folders, marks the email as READ, and checks for duplicates.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Core <span>Features</span></h2>
+            <p>Built for speed, safety, and enterprise compliance with zero complex overhead.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">&#128231;</div>
+                <h3>Dual Outlook Modes</h3>
+                <p>Use local <strong>Outlook COM Automation</strong> (requires zero-config profile login) or head-less <strong>M365 Microsoft Graph API</strong> directly over Microsoft servers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#9729;</div>
+                <h3>Flexible Upload Sync</h3>
+                <p>Save files directly into your local <strong>OneDrive Synced Library</strong>, or upload straight to the <strong>SharePoint Cloud API</strong> using secure MSAL PKCE OAuth.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128193;</div>
+                <h3>Dynamic Bifurcation</h3>
+                <p>Automatically separates normal documents into <code>onboarding</code> paths while moving files containing <code>spare</code> or <code>replacement</code> to <code>Spare 2026</code> subdirectories.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128337;</div>
+                <h3>Interval Polling</h3>
+                <p>Run the synchronization on a continuous thread from 1 to 60 minutes. Minimize the app directly to the <strong>Windows System Tray</strong> for quiet background operation.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128269;</div>
+                <h3>Duplicate Verification</h3>
+                <p>Performs a hash or filename lookup on the destination library before uploading, saving network bandwidth and avoiding file conflicts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">&#128196;</div>
+                <h3>Full Logging</h3>
+                <p>View visual, color-coded consoles showing scanning success, download speeds, skipped duplicates, and detailed system error stack traces.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulator Section -->
+    <section class="simulator-section" id="simulator">
+        <div class="section-header">
+            <h2>Interactive <span>Rename Simulator</span></h2>
+            <p>See exactly how the tool classifies your attachments and resolves destination folders in real-time.</p>
+        </div>
+        <div class="simulator-grid">
+            <div class="sim-form">
+                <div class="sim-group">
+                    <label class="sim-label">Email Subject</label>
+                    <input type="text" class="sim-input" id="sim-subject" value="onboarding documents for Chen">
+                </div>
+                <div class="sim-group">
+                    <label class="sim-label">Attachment Filename</label>
+                    <input type="text" class="sim-input" id="sim-filename" value="agreement_form.pdf">
+                </div>
+                <div class="sim-group">
+                    <label class="sim-label">OneDrive Root Destination</label>
+                    <input type="text" class="sim-input" id="sim-dest" value="C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026">
+                </div>
+            </div>
+            <div class="sim-output-card">
+                <div class="sim-output-title">Renaming Engine Output</div>
+                <div>
+                    <div class="out-group">
+                        <div class="out-label">Detected Category</div>
+                        <div class="out-val"><span class="out-val-category" id="out-cat">onboarding</span></div>
+                    </div>
+                    <div class="out-group">
+                        <div class="out-label">Renamed Output Filename</div>
+                        <div class="out-val"><span class="out-val-filename" id="out-newname">onboarding_20260521_agreement_form.pdf</span></div>
+                    </div>
+                    <div class="out-group">
+                        <div class="out-label">Resolved Folder Destination</div>
+                        <div class="out-val"><span class="out-val-path" id="out-path">C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026\onboarding_20260521_agreement_form.pdf</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Setup / Deployment Section -->
+    <section class="deployment" id="setup">
+        <div class="section-header">
+            <h2>Download &amp; <span>Setup</span></h2>
+            <p>Get started with the precompiled executable or run directly from the Python source code.</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'exe-guide')">Run Executable (.EXE)</button>
+            <button class="tab-btn" onclick="switchTab(event, 'source-guide')">Run from Source</button>
+        </div>
+
+        <div id="exe-guide" class="tab-content active">
+            <ul class="step-list">
+                <li class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h4>Download Executable</h4>
+                        <p>Download the pre-compiled executable file <code>OutlookSharePointSync.exe</code> directly from this repository root folder or the Releases section.</p>
+                        <a href="https://github.com/shankarprasadtn/Outlook-email-backup/raw/main/dist/OutlookSharePointSync.exe" class="btn btn-secondary" style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.85rem;">
+                            Direct Download (.EXE)
+                        </a>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h4>Launch and Configure</h4>
+                        <p>Double-click the executable to launch. Navigate to the **Configuration** tab in the sidebar and configure your Outlook folders, Microsoft Graph site details, or local OneDrive folder paths.</p>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <h4>Trigger Synchronization</h4>
+                        <p>Click **Sync Now** on the main dashboard to verify your settings. The console log will display real-time progress details. After validating, set a background poll interval to automate it.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div id="source-guide" class="tab-content">
+            <ul class="step-list">
+                <li class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h4>Clone the Repository</h4>
+                        <p>Clone the code folder to your local machine using Git:</p>
+                        <div class="code-box">
+                            <button class="btn-copy" onclick="copyCode(this, 'git clone')">Copy</button>
+                            <span id="git clone">git clone https://github.com/shankarprasadtn/Outlook-email-backup.git</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h4>Execute Batch Installer</h4>
+                        <p>Run the <code>run.bat</code> file. This script automatically checks your system for Python 3, sets up a virtual environment (<code>.venv</code>), installs the dependencies from <code>requirements.txt</code>, and launches the application.</p>
+                        <div class="code-box">
+                            <button class="btn-copy" onclick="copyCode(this, 'run-bat')">Copy</button>
+                            <span id="run-bat">run.bat</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <h4>Compile into Executable</h4>
+                        <p>If you make changes to the source files, you can recompile them back into a single Windows executable using the provided <code>compile.bat</code> batch script:</p>
+                        <div class="code-box">
+                            <button class="btn-copy" onclick="copyCode(this, 'compile-bat')">Copy</button>
+                            <span id="compile-bat">compile.bat</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+</div>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2026 Outlook &amp; SharePoint Sync Utility. Released under the MIT License.</p>
+    </div>
+</footer>
+
+<script>
+    // Live Terminal Simulation
+    const logs = [
+        { type: 'info', text: 'Starting synchronization process...' },
+        { type: 'info', text: 'Connecting to Microsoft Outlook desktop client...' },
+        { type: 'info', text: 'Searching for Outlook folder: \'HP Scan\'...' },
+        { type: 'success', text: 'Found folder: \\\\tshankarprasad@ups.com\\Inbox\\HP Scan.' },
+        { type: 'info', text: 'Scanning folder messages... (57 items found)' },
+        { type: 'success', text: 'Matching email found! Subject: \'Spare Laptop Agreement\' | From: IN110HPTSG@UPS.COM' },
+        { type: 'info', text: 'Downloading attachment: Muthu_V_PF4D2972.pdf' },
+        { type: 'success', text: 'File categorized: [spare] -> spare_20260521_Muthu_V_PF4D2972.pdf' },
+        { type: 'info', text: 'Checking destination folder duplicates...' },
+        { type: 'success', text: 'Copying file to OneDrive: ...\\Spare 2026\\spare_20260521_Muthu_V_PF4D2972.pdf' },
+        { type: 'success', text: 'File synchronized successfully. Marked email as READ.' },
+        { type: 'info', text: 'Scanning next email... Subject: \'Onboarding Agreement\' | From: IN110HPTSG@UPS.COM' },
+        { type: 'info', text: 'Downloading attachment: Agreement_Form_Chennai.pdf' },
+        { type: 'success', text: 'File categorized: [onboarding] -> onboarding_20260521_Agreement_Form_Chennai.pdf' },
+        { type: 'warning', text: 'File already exists in destination, skipping upload.' },
+        { type: 'success', text: 'Sync completed. Processed: 2 | Uploaded: 1 | Skipped: 1' }
+    ];
+
+    const consoleEl = document.getElementById('console');
+    let logIndex = 0;
+
+    function addConsoleLine() {
+        if (logIndex >= logs.length) {
+            consoleEl.innerHTML = '';
+            logIndex = 0;
+        }
+
+        const log = logs[logIndex];
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        
+        const now = new Date();
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        
+        line.innerHTML = `
+            <span class="timestamp">[${timeStr}]</span>
+            <span class="${log.type}">${log.type.toUpperCase()}</span>
+            <span class="msg-text">${log.text}</span>
+        `;
+        
+        consoleEl.appendChild(line);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+        
+        logIndex++;
+        setTimeout(addConsoleLine, Math.random() * 2000 + 800);
+    }
+
+    addConsoleLine();
+
+    // Tab Switching
+    function switchTab(evt, tabId) {
+        const contents = document.getElementsByClassName('tab-content');
+        for (let i = 0; i < contents.length; i++) {
+            contents[i].classList.remove('active');
+        }
+        const buttons = document.getElementsByClassName('tab-btn');
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove('active');
+        }
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // Copy Code Helper
+    function copyCode(btn, elementId) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = 'Copied!';
+            btn.style.background = '#10b981';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = '';
+            }, 2000);
+        });
+    }
+
+    // Interactive Simulator Logic
+    const simSubject = document.getElementById('sim-subject');
+    const simFilename = document.getElementById('sim-filename');
+    const simDest = document.getElementById('sim-dest');
+    
+    const outCat = document.getElementById('out-cat');
+    const outNewName = document.getElementById('out-newname');
+    const outPath = document.getElementById('out-path');
+
+    function updateSimulator() {
+        const subject = simSubject.value.toLowerCase();
+        const filename = simFilename.value.toLowerCase();
+        let dest = simDest.value.replace(/\\/g, '/').replace(/\/$/, '');
+
+        // Determine category
+        let category = 'onboarding';
+        const isSpare = subject.includes('spare') || subject.includes('replacement') || 
+                        filename.includes('spare') || filename.includes('replacement');
+        
+        if (isSpare) {
+            if (subject.includes('replacement') || filename.includes('replacement')) {
+                category = 'replacement';
+            } else {
+                category = 'spare';
+            }
+        }
+
+        outCat.innerText = category;
+        if (category === 'onboarding') {
+            outCat.className = 'out-val-category';
+            outCat.style.color = '#38bdf8'; // Onboarding blue
+        } else {
+            outCat.className = 'out-val-category';
+            outCat.style.color = '#a78bfa'; // Spare violet
+        }
+
+        // Generate renamed file
+        const today = new Date();
+        const dateStr = today.getFullYear() + 
+                        String(today.getMonth() + 1).padStart(2, '0') + 
+                        String(today.getDate()).padStart(2, '0');
+        
+        const finalFilename = `${category}_${dateStr}_${simFilename.value}`;
+        outNewName.innerText = finalFilename;
+
+        // Resolve folder path
+        let resolvedPath = dest;
+        if (category === 'spare' || category === 'replacement') {
+            // Append target spare folders
+            resolvedPath += '/Backups of Chennai TSG/Laptop Agreements backups/Spare 2026';
+        }
+        resolvedPath += '/' + finalFilename;
+
+        // Re-convert to windows path formatting for display
+        outPath.innerText = resolvedPath.replace(/\//g, '\\');
+    }
+
+    [simSubject, simFilename, simDest].forEach(input => {
+        input.addEventListener('input', updateSimulator);
+    });
+
+    updateSimulator();
+</script>
+
+</body>
+</html>
