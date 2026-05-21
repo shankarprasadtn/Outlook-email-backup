@@ -134,7 +134,7 @@ def get_sharepoint_drive_details(token, site_url):
     parsed = urlparse(site_url)
     hostname = parsed.netloc
     
-    # Extract site path, e.g., /sites/UPSITCCHENNAITSG
+    # Extract site path, e.g., /sites/yoursite
     path = parsed.path.rstrip('/')
     
     # Query site details to get Site ID
@@ -167,7 +167,7 @@ def get_sharepoint_drive_details(token, site_url):
     return site_id, drive_id
 
 def check_file_exists_on_sharepoint(token, drive_id, folder_path, filename):
-    # Standardize folder path. E.g. "Shared Documents/Backups of Chennai TSG/Laptop Agreements backups/2026"
+    # Standardize folder path. E.g. "Shared Documents/Backups/2026"
     # Wait, in Microsoft Graph:
     # If folder_path starts with "Shared Documents", the drive_id represents "Shared Documents".
     # So the path in the drive is relative to the root, which excludes "Shared Documents/".

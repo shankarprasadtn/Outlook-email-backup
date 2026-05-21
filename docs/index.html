@@ -918,7 +918,7 @@
                     </div>
                     <div class="sim-group">
                         <label class="sim-label">OneDrive Root Destination</label>
-                        <input type="text" class="sim-input" id="sim-dest" value="C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026">
+                        <input type="text" class="sim-input" id="sim-dest" value="C:\Users\username\OneDrive - Company\Documents\Backups\2026">
                     </div>
                 </div>
                 <div class="sim-output-card">
@@ -934,7 +934,7 @@
                         </div>
                         <div class="out-group">
                             <div class="out-label">Resolved Folder Destination</div>
-                            <div class="out-val"><span class="out-val-path" id="out-path">C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026\onboarding_20260521_agreement_form.pdf</span></div>
+                            <div class="out-val"><span class="out-val-path" id="out-path">C:\Users\username\OneDrive - Company\Documents\Backups\2026\onboarding_20260521_agreement_form.pdf</span></div>
                         </div>
                     </div>
                 </div>
@@ -969,18 +969,18 @@
                         </div>
                         <div class="sim-group" style="margin-bottom: 0;">
                             <label class="sim-label">Sender Email Filter</label>
-                            <input type="text" class="sim-input" id="sync-sender" placeholder="Optional" value="in110hptsg@ups.com">
+                            <input type="text" class="sim-input" id="sync-sender" placeholder="Optional" value="scanner@company.com">
                         </div>
                     </div>
 
                     <div class="sim-group" style="margin-bottom: 0;">
                         <label class="sim-label">SharePoint Site URL</label>
-                        <input type="text" class="sim-input" id="sync-site-url" placeholder="https://your-tenant.sharepoint.com/sites/site-name" value="https://ups.sharepoint.com/sites/UPSITCCHENNAITSG">
+                        <input type="text" class="sim-input" id="sync-site-url" placeholder="https://your-tenant.sharepoint.com/sites/site-name" value="https://company.sharepoint.com/sites/yoursite">
                     </div>
 
                     <div class="sim-group" style="margin-bottom: 0;">
                         <label class="sim-label">SharePoint Target Folder Path</label>
-                        <input type="text" class="sim-input" id="sync-target-path" value="Shared Documents/Backups of Chennai TSG/Laptop Agreements backups/2026">
+                        <input type="text" class="sim-input" id="sync-target-path" value="Shared Documents/Backups/2026">
                     </div>
 
                     <div class="sim-group" style="margin-bottom: 0;">
@@ -1104,17 +1104,17 @@
         { type: 'info', text: 'Starting synchronization process...' },
         { type: 'info', text: 'Connecting to Microsoft Outlook desktop client...' },
         { type: 'info', text: 'Searching for Outlook folder: \'HP Scan\'...' },
-        { type: 'success', text: 'Found folder: \\\\tshankarprasad@ups.com\\Inbox\\HP Scan.' },
+        { type: 'success', text: 'Found folder: \\\\user@company.com\\Inbox\\HP Scan.' },
         { type: 'info', text: 'Scanning folder messages... (57 items found)' },
-        { type: 'success', text: 'Matching email found! Subject: \'Spare Laptop Agreement\' | From: IN110HPTSG@UPS.COM' },
+        { type: 'success', text: 'Matching email found! Subject: \'Spare Laptop Agreement\' | From: scanner@company.com' },
         { type: 'info', text: 'Downloading attachment: Muthu_V_PF4D2972.pdf' },
         { type: 'success', text: 'File categorized: [spare] -> spare_20260521_Muthu_V_PF4D2972.pdf' },
         { type: 'info', text: 'Checking destination folder duplicates...' },
         { type: 'success', text: 'Copying file to OneDrive: ...\\Spare 2026\\spare_20260521_Muthu_V_PF4D2972.pdf' },
         { type: 'success', text: 'File synchronized successfully. Marked email as READ.' },
-        { type: 'info', text: 'Scanning next email... Subject: \'Onboarding Agreement\' | From: IN110HPTSG@UPS.COM' },
-        { type: 'info', text: 'Downloading attachment: Agreement_Form_Chennai.pdf' },
-        { type: 'success', text: 'File categorized: [onboarding] -> onboarding_20260521_Agreement_Form_Chennai.pdf' },
+        { type: 'info', text: 'Scanning next email... Subject: \'Onboarding Agreement\' | From: scanner@company.com' },
+        { type: 'info', text: 'Downloading attachment: Agreement_Form_Sample.pdf' },
+        { type: 'success', text: 'File categorized: [onboarding] -> onboarding_20260521_Agreement_Form_Sample.pdf' },
         { type: 'warning', text: 'File already exists in destination, skipping upload.' },
         { type: 'success', text: 'Sync completed. Processed: 2 | Uploaded: 1 | Skipped: 1' }
     ];
@@ -1636,8 +1636,13 @@
         // Resolve folder path
         let resolvedPath = dest;
         if (category === 'spare' || category === 'replacement') {
-            // Append target spare folders
-            resolvedPath += '/Backups of Chennai TSG/Laptop Agreements backups/Spare 2026';
+            if (resolvedPath.endsWith('/2026')) {
+                resolvedPath = resolvedPath.substring(0, resolvedPath.length - 5) + '/Spare 2026';
+            } else if (resolvedPath.endsWith('\\2026')) {
+                resolvedPath = resolvedPath.substring(0, resolvedPath.length - 5) + '\\Spare 2026';
+            } else {
+                resolvedPath += '/Spare 2026';
+            }
         }
         resolvedPath += '/' + finalFilename;
 

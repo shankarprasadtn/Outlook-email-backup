@@ -5,15 +5,15 @@ CONFIG_FILE = "config.json"
 
 DEFAULT_CONFIG = {
     "outlook_folder": "HP Scan",
-    "sender_filter": "IN110HPTSG@UPS.COM",
+    "sender_filter": "scanner@company.com",
     "subject_filter": "onboarding, spare, replacement",
     "rename_format": "onboarding_{date}_{filename}",
     "outlook_source": "local",  # "local" (Classic Outlook) or "graph" (New Outlook / Cloud)
     "sync_method": "graph",  # "graph" or "local"
-    "sharepoint_site": "https://upsinc.sharepoint.com/sites/UPSITCCHENNAITSG",
-    "sharepoint_folder": "Shared Documents/Backups of Chennai TSG/Laptop Agreements backups/2026",
+    "sharepoint_site": "https://company.sharepoint.com/sites/yoursite",
+    "sharepoint_folder": "Shared Documents/Backups/2026",
     "local_sync_path": "",
-    "client_id": "1d79e85e-ab74-4c4b-88a4-39985b3b8e4e",  # PnP Management Shell (Pre-authorized for SharePoint/Graph)
+    "client_id": "your-azure-client-id-uuid",
     "tenant_id": "common",
     "check_interval": 15,
     "run_minimized": False
