@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- MSAL.js for Browser OAuth -->
+    <script src="https://alcdn.msauth.net/browser/msal-browser/2.38.0/js/msal-browser.min.js"></script>
     <style>
         :root {
             --bg-base: #0b0f19;
@@ -893,38 +895,116 @@
     <!-- Simulator Section -->
     <section class="simulator-section" id="simulator">
         <div class="section-header">
-            <h2>Interactive <span>Rename Simulator</span></h2>
-            <p>See exactly how the tool classifies your attachments and resolves destination folders in real-time.</p>
+            <h2>Interactive <span>Tools &amp; Web Sync</span></h2>
+            <p>Test the renaming rules locally or scan your Outlook folders and upload attachments directly from your browser.</p>
         </div>
-        <div class="simulator-grid">
-            <div class="sim-form">
-                <div class="sim-group">
-                    <label class="sim-label">Email Subject</label>
-                    <input type="text" class="sim-input" id="sim-subject" value="onboarding documents for Chen">
+
+        <div class="tabs" style="margin-bottom: 2rem; justify-content: center; border-bottom: 1px solid var(--border-glow); display: flex;">
+            <button class="tab-btn active" id="btn-sim-tab" onclick="switchSimulatorTab(event, 'simulator-content')">Rename Simulator</button>
+            <button class="tab-btn" id="btn-sync-tab" onclick="switchSimulatorTab(event, 'websync-content')">Live Web Sync (M365 Cloud-Only)</button>
+        </div>
+
+        <!-- Tab 1: Rename Simulator -->
+        <div id="simulator-content" class="tab-content active">
+            <div class="simulator-grid">
+                <div class="sim-form">
+                    <div class="sim-group">
+                        <label class="sim-label">Email Subject</label>
+                        <input type="text" class="sim-input" id="sim-subject" value="onboarding documents for Chen">
+                    </div>
+                    <div class="sim-group">
+                        <label class="sim-label">Attachment Filename</label>
+                        <input type="text" class="sim-input" id="sim-filename" value="agreement_form.pdf">
+                    </div>
+                    <div class="sim-group">
+                        <label class="sim-label">OneDrive Root Destination</label>
+                        <input type="text" class="sim-input" id="sim-dest" value="C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026">
+                    </div>
                 </div>
-                <div class="sim-group">
-                    <label class="sim-label">Attachment Filename</label>
-                    <input type="text" class="sim-input" id="sim-filename" value="agreement_form.pdf">
-                </div>
-                <div class="sim-group">
-                    <label class="sim-label">OneDrive Root Destination</label>
-                    <input type="text" class="sim-input" id="sim-dest" value="C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026">
+                <div class="sim-output-card">
+                    <div class="sim-output-title">Renaming Engine Output</div>
+                    <div>
+                        <div class="out-group">
+                            <div class="out-label">Detected Category</div>
+                            <div class="out-val"><span class="out-val-category" id="out-cat">onboarding</span></div>
+                        </div>
+                        <div class="out-group">
+                            <div class="out-label">Renamed Output Filename</div>
+                            <div class="out-val"><span class="out-val-filename" id="out-newname">onboarding_20260521_agreement_form.pdf</span></div>
+                        </div>
+                        <div class="out-group">
+                            <div class="out-label">Resolved Folder Destination</div>
+                            <div class="out-val"><span class="out-val-path" id="out-path">C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026\onboarding_20260521_agreement_form.pdf</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="sim-output-card">
-                <div class="sim-output-title">Renaming Engine Output</div>
+        </div>
+
+        <!-- Tab 2: Live Web Sync -->
+        <div id="websync-content" class="tab-content">
+            <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; font-size: 0.9rem; color: #a78bfa; text-align: left;">
+                <div style="font-size: 1.5rem;">⚙️</div>
                 <div>
-                    <div class="out-group">
-                        <div class="out-label">Detected Category</div>
-                        <div class="out-val"><span class="out-val-category" id="out-cat">onboarding</span></div>
+                    <strong>Configuration Prerequisite:</strong> To run Web Sync in your browser, ensure you have registered a Single Page Application (SPA) in your Azure AD Portal and added <code>https://shankarprasadtn.github.io/Outlook-email-backup/</code> (or your current web address) as a <strong>Redirect URI</strong>.
+                </div>
+            </div>
+            <div class="simulator-grid">
+                <div class="sim-form" style="display: flex; flex-direction: column; gap: 1rem; max-height: 520px; overflow-y: auto; text-align: left;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="sim-group" style="margin-bottom: 0;">
+                            <label class="sim-label">Application (Client) ID</label>
+                            <input type="text" class="sim-input" id="sync-client-id" placeholder="e.g. 4e5d6c7b-3b2a-1f0e-..." value="">
+                        </div>
+                        <div class="sim-group" style="margin-bottom: 0;">
+                            <label class="sim-label">Directory (Tenant) ID</label>
+                            <input type="text" class="sim-input" id="sync-tenant-id" placeholder="common" value="common">
+                        </div>
                     </div>
-                    <div class="out-group">
-                        <div class="out-label">Renamed Output Filename</div>
-                        <div class="out-val"><span class="out-val-filename" id="out-newname">onboarding_20260521_agreement_form.pdf</span></div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="sim-group" style="margin-bottom: 0;">
+                            <label class="sim-label">Outlook Scan Folder</label>
+                            <input type="text" class="sim-input" id="sync-folder" value="HP Scan">
+                        </div>
+                        <div class="sim-group" style="margin-bottom: 0;">
+                            <label class="sim-label">Sender Email Filter</label>
+                            <input type="text" class="sim-input" id="sync-sender" placeholder="Optional" value="in110hptsg@ups.com">
+                        </div>
                     </div>
-                    <div class="out-group">
-                        <div class="out-label">Resolved Folder Destination</div>
-                        <div class="out-val"><span class="out-val-path" id="out-path">C:\Users\mvz5cyq\OneDrive - ups\UPSITCCHENNAITSG - Documents\Backups of Chennai TSG\Laptop Agreements backups\2026\onboarding_20260521_agreement_form.pdf</span></div>
+
+                    <div class="sim-group" style="margin-bottom: 0;">
+                        <label class="sim-label">SharePoint Site URL</label>
+                        <input type="text" class="sim-input" id="sync-site-url" placeholder="https://your-tenant.sharepoint.com/sites/site-name" value="https://ups.sharepoint.com/sites/UPSITCCHENNAITSG">
+                    </div>
+
+                    <div class="sim-group" style="margin-bottom: 0;">
+                        <label class="sim-label">SharePoint Target Folder Path</label>
+                        <input type="text" class="sim-input" id="sync-target-path" value="Shared Documents/Backups of Chennai TSG/Laptop Agreements backups/2026">
+                    </div>
+
+                    <div class="sim-group" style="margin-bottom: 0;">
+                        <label class="sim-label">Subject &amp; Attachment Filters (comma separated)</label>
+                        <input type="text" class="sim-input" id="sync-filters" value="onboarding, spare, replacement">
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-secondary" id="btn-sync-login" onclick="initiateWebLogin()" style="flex: 1; padding: 0.75rem 1rem; cursor: pointer;">Connect Microsoft 365</button>
+                        <button class="btn btn-primary" id="btn-sync-run" onclick="runWebSync()" style="flex: 1; padding: 0.75rem 1rem; cursor: pointer;" disabled>Run Web Sync</button>
+                    </div>
+                    
+                    <div id="sync-user-info" style="font-size: 0.85rem; text-align: center; color: var(--color-text-muted); display: none;">
+                        Connected as: <strong id="sync-connected-user" style="color: #10b981;">-</strong>
+                    </div>
+                </div>
+                
+                <div class="sim-output-card" style="display: flex; flex-direction: column; justify-content: space-between; height: 520px;">
+                    <div class="sim-output-title" style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 0.5rem;">
+                        <span>Web Sync Console</span>
+                        <button onclick="clearWebConsole()" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 0.2rem 0.5rem; color: var(--color-text-muted); font-size: 0.7rem; cursor: pointer; transition: all 0.2s;">Clear</button>
+                    </div>
+                    <div id="websync-console" class="terminal" style="flex-grow: 1; margin-bottom: 0; background: #05070c; padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); font-family: var(--font-mono); font-size: 0.8rem; overflow-y: auto; text-align: left; height: 420px;">
+                        <div class="terminal-line"><span class="timestamp">[SYSTEM]</span> Console ready. Enter Client ID and connect to M365 to start.</div>
                     </div>
                 </div>
             </div>
@@ -1070,18 +1150,428 @@
 
     addConsoleLine();
 
-    // Tab Switching
+    // Tab Switching for setup guide
     function switchTab(evt, tabId) {
-        const contents = document.getElementsByClassName('tab-content');
+        // Toggle tabs specifically for the setup section by class/parent matching
+        const setupSection = document.getElementById('setup');
+        const contents = setupSection.getElementsByClassName('tab-content');
         for (let i = 0; i < contents.length; i++) {
             contents[i].classList.remove('active');
         }
-        const buttons = document.getElementsByClassName('tab-btn');
+        const buttons = setupSection.getElementsByClassName('tab-btn');
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].classList.remove('active');
         }
         document.getElementById(tabId).classList.add('active');
         evt.currentTarget.classList.add('active');
+    }
+
+    // Tab Switching for simulator and web sync section
+    function switchSimulatorTab(evt, tabId) {
+        const simContents = ['simulator-content', 'websync-content'];
+        simContents.forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        
+        const simBtns = [document.getElementById('btn-sim-tab'), document.getElementById('btn-sync-tab')];
+        simBtns.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // Live Web Sync MSAL & Graph API Logic
+    let msalInstance = null;
+    let userAccount = null;
+    let msalToken = null;
+
+    function logToWebConsole(message, type = 'info') {
+        const consoleEl = document.getElementById('websync-console');
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        const now = new Date();
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        
+        line.innerHTML = `
+            <span class="timestamp">[${timeStr}]</span>
+            <span class="${type}">${type.toUpperCase()}</span>
+            <span class="msg-text" style="color: ${type === 'error' ? '#f43f5e' : type === 'success' ? '#10b981' : type === 'warning' ? '#fb923c' : '#f3f4f6'};">${message}</span>
+        `;
+        consoleEl.appendChild(line);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearWebConsole() {
+        document.getElementById('websync-console').innerHTML = '';
+        logToWebConsole("Console cleared.", "info");
+    }
+
+    async function initiateWebLogin() {
+        const clientId = document.getElementById('sync-client-id').value.trim();
+        const tenantId = document.getElementById('sync-tenant-id').value.trim() || 'common';
+
+        if (!clientId) {
+            logToWebConsole("Client ID (Application ID) is required to authenticate.", "error");
+            alert("Please enter your Azure AD Application (Client) ID first.");
+            return;
+        }
+
+        logToWebConsole(`Initializing Microsoft Authentication (MSAL.js) with Client ID: ${clientId}...`, "info");
+
+        const msalConfig = {
+            auth: {
+                clientId: clientId,
+                authority: `https://login.microsoftonline.com/${tenantId}`,
+                redirectUri: window.location.origin + window.location.pathname
+            },
+            cache: {
+                cacheLocation: "sessionStorage"
+            }
+        };
+
+        try {
+            msalInstance = new msal.PublicClientApplication(msalConfig);
+            await msalInstance.handleRedirectPromise();
+
+            logToWebConsole("Opening Microsoft 365 Login Popup...", "info");
+            const loginRequest = {
+                scopes: ["User.Read", "Mail.ReadWrite", "Files.ReadWrite.All", "Sites.ReadWrite.All"]
+            };
+
+            const loginResponse = await msalInstance.loginPopup(loginRequest);
+            userAccount = loginResponse.account;
+            msalToken = loginResponse.accessToken;
+
+            logToWebConsole(`Authentication successful! Connected.`, "success");
+            document.getElementById('sync-connected-user').innerText = userAccount.username;
+            document.getElementById('sync-user-info').style.display = 'block';
+            document.getElementById('btn-sync-run').disabled = false;
+            document.getElementById('btn-sync-login').innerText = "Reconnect Account";
+        } catch (error) {
+            logToWebConsole(`MSAL Error: ${error.message || error}`, "error");
+            console.error(error);
+        }
+    }
+
+    async function getAccessToken() {
+        if (!msalInstance || !userAccount) {
+            throw new Error("No active MSAL session. Please connect first.");
+        }
+        
+        const tokenRequest = {
+            scopes: ["Mail.ReadWrite", "Files.ReadWrite.All", "Sites.ReadWrite.All"],
+            account: userAccount
+        };
+
+        try {
+            const tokenResponse = await msalInstance.acquireTokenSilent(tokenRequest);
+            return tokenResponse.accessToken;
+        } catch (error) {
+            logToWebConsole("Silent token acquisition failed. Requesting login popup...", "warning");
+            const tokenResponse = await msalInstance.acquireTokenPopup(tokenRequest);
+            return tokenResponse.accessToken;
+        }
+    }
+
+    async function runWebSync() {
+        const btnRun = document.getElementById('btn-sync-run');
+        btnRun.disabled = true;
+        btnRun.innerText = "Syncing...";
+
+        logToWebConsole("Starting M365 Web Sync...", "info");
+
+        try {
+            const token = await getAccessToken();
+            
+            const folderName = document.getElementById('sync-folder').value.trim();
+            const senderFilter = document.getElementById('sync-sender').value.trim().toLowerCase();
+            const siteUrl = document.getElementById('sync-site-url').value.trim();
+            const targetPath = document.getElementById('sync-target-path').value.trim();
+            const filtersRaw = document.getElementById('sync-filters').value;
+            const subjectFilters = filtersRaw.split(',').map(f => f.trim().toLowerCase()).filter(Boolean);
+
+            if (!folderName) throw new Error("Outlook Scan Folder name is required.");
+            if (!siteUrl) throw new Error("SharePoint Site URL is required.");
+            if (!targetPath) throw new Error("SharePoint Target Folder path is required.");
+
+            logToWebConsole("Connecting to Exchange Online via Microsoft Graph API...", "info");
+
+            // 1. Find Outlook Folder ID
+            logToWebConsole(`Querying mail folders to find '${folderName}'...`, "info");
+            let foldersRes = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders?$top=100", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!foldersRes.ok) throw new Error(`Failed to list mail folders (HTTP ${foldersRes.status})`);
+            let foldersData = await foldersRes.json();
+            let folder = foldersData.value.find(f => f.displayName.toLowerCase() === folderName.toLowerCase());
+            let folderId = folder ? folder.id : null;
+
+            if (!folderId) {
+                logToWebConsole(`Folder '${folderName}' not found at root level. Checking Inbox child folders...`, "info");
+                let inboxRes = await fetch("https://graph.microsoft.com/v1.0/me/mailFolders/inbox", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (inboxRes.ok) {
+                    let inboxData = await inboxRes.json();
+                    let childRes = await fetch(`https://graph.microsoft.com/v1.0/me/mailFolders/${inboxData.id}/childFolders?$top=100`, {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    if (childRes.ok) {
+                        let childData = await childRes.json();
+                        let childFolder = childData.value.find(f => f.displayName.toLowerCase() === folderName.toLowerCase());
+                        if (childFolder) folderId = childFolder.id;
+                    }
+                }
+            }
+
+            if (!folderId) {
+                throw new Error(`Outlook folder '${folderName}' not found in your mailbox.`);
+            }
+            logToWebConsole(`Found folder. ID: ${folderId}. Querying messages...`, "success");
+
+            // 2. Query Site ID and Document Library (Drive) ID
+            logToWebConsole("Resolving SharePoint site details...", "info");
+            const parsedUrl = new URL(siteUrl);
+            const hostname = parsedUrl.hostname;
+            const sitePath = parsedUrl.pathname.replace(/\/$/, "");
+            
+            let siteRes = await fetch(`https://graph.microsoft.com/v1.0/sites/${hostname}:${sitePath}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!siteRes.ok) throw new Error(`SharePoint site details query failed (HTTP ${siteRes.status}). Verify your SharePoint Site URL.`);
+            let siteData = await siteRes.json();
+            const siteId = siteData.id;
+            logToWebConsole(`SharePoint Site ID resolved: ${siteId}`, "success");
+
+            let driveRes = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/drive`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!driveRes.ok) throw new Error(`Failed to resolve default Document Library (HTTP ${driveRes.status})`);
+            let driveData = await driveRes.json();
+            const driveId = driveData.id;
+            logToWebConsole(`SharePoint Default Drive ID resolved: ${driveId}`, "success");
+
+            // 3. Fetch Messages from Folder
+            let messagesRes = await fetch(`https://graph.microsoft.com/v1.0/me/mailFolders/${folderId}/messages?$orderby=receivedDateTime desc&$top=30`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!messagesRes.ok) throw new Error(`Failed to retrieve messages (HTTP ${messagesRes.status})`);
+            let messagesData = await messagesRes.json();
+            const messages = messagesData.value || [];
+            logToWebConsole(`Total emails fetched from folder: ${messages.length}`, "info");
+
+            let totalProcessed = 0;
+            let totalUploaded = 0;
+            let totalSkipped = 0;
+
+            for (const msg of messages) {
+                const sender = msg.sender?.emailAddress?.address || "";
+                const subject = msg.subject || "";
+                const msgId = msg.id;
+
+                if (!sender) continue;
+
+                const senderMatch = (!senderFilter) || (sender.toLowerCase() === senderFilter);
+                if (!senderMatch) continue;
+
+                let matchedFilter = null;
+                let subjectMatched = false;
+                let attachments = null;
+
+                for (const sf of subjectFilters) {
+                    if (sf && subject.toLowerCase().includes(sf)) {
+                        matchedFilter = sf;
+                        subjectMatched = true;
+                        break;
+                    }
+                }
+
+                if (!matchedFilter) {
+                    let attsRes = await fetch(`https://graph.microsoft.com/v1.0/me/messages/${msgId}/attachments`, {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    if (attsRes.ok) {
+                        let attsData = await attsRes.json();
+                        attachments = attsData.value || [];
+                        for (const att of attachments) {
+                            const attNameLower = (att.name || "").toLowerCase();
+                            for (const sf of subjectFilters) {
+                                if (sf && attNameLower.includes(sf)) {
+                                    matchedFilter = sf;
+                                    break;
+                                }
+                            }
+                            if (matchedFilter) break;
+                        }
+                    }
+                }
+
+                if (matchedFilter) {
+                    logToWebConsole(`Matching email found! Subject: '${subject}' | From: ${sender} (Matched by: '${matchedFilter}')`, "success");
+                    
+                    let dateStr = "";
+                    try {
+                        const dt = new Date(msg.receivedDateTime);
+                        dateStr = dt.getFullYear() + 
+                                  String(dt.getMonth() + 1).padStart(2, '0') + 
+                                  String(dt.getDate()).padStart(2, '0');
+                    } catch (e) {
+                        const now = new Date();
+                        dateStr = now.getFullYear() + 
+                                  String(now.getMonth() + 1).padStart(2, '0') + 
+                                  String(now.getDate()).padStart(2, '0');
+                    }
+
+                    if (attachments === null) {
+                        let attsRes = await fetch(`https://graph.microsoft.com/v1.0/me/messages/${msgId}/attachments`, {
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (attsRes.ok) {
+                            let attsData = await attsRes.json();
+                            attachments = attsData.value || [];
+                        }
+                    }
+
+                    if (!attachments || attachments.length === 0) {
+                        logToWebConsole("No attachments found in this email, skipping.", "warning");
+                        continue;
+                    }
+
+                    let emailSuccess = true;
+
+                    for (const att of attachments) {
+                        if (att["@odata.type"] !== "#microsoft.graph.fileAttachment") {
+                            logToWebConsole(`Skipping non-file attachment: ${att.name}`, "info");
+                            continue;
+                        }
+
+                        const origName = att.name;
+                        const origNameLower = origName.toLowerCase();
+
+                        if (!subjectMatched) {
+                            let matchedAttName = false;
+                            for (const sf of subjectFilters) {
+                                if (sf && origNameLower.includes(sf)) {
+                                    matchedAttName = true;
+                                    break;
+                                }
+                            }
+                            if (!matchedAttName) {
+                                logToWebConsole(`Skipping non-matching attachment: '${origName}'`, "info");
+                                continue;
+                            }
+                        }
+
+                        const isSpare = origNameLower.includes("spare") || origNameLower.includes("replacement") || 
+                                        subject.toLowerCase().includes("spare") || subject.toLowerCase().includes("replacement");
+                        
+                        let category = "onboarding";
+                        if (isSpare) {
+                            if (origNameLower.includes("replacement") || subject.toLowerCase().includes("replacement")) {
+                                category = "replacement";
+                            } else {
+                                category = "spare";
+                            }
+                        }
+
+                        const newFilename = `${category}_${dateStr}_${origName}`;
+                        
+                        let finalPath = targetPath;
+                        if (category === "spare" || category === "replacement") {
+                            if (finalPath.endsWith("/2026")) {
+                                finalPath = finalPath.slice(0, -5) + "/Spare 2026";
+                            } else if (finalPath.endsWith("\\2026")) {
+                                finalPath = finalPath.slice(0, -5) + "\\Spare 2026";
+                            } else {
+                                if (!finalPath.endsWith("Spare 2026")) {
+                                    finalPath = finalPath.replace(/\/$/, "") + "/Spare 2026";
+                                }
+                            }
+                        }
+
+                        let relPath = finalPath;
+                        if (relPath.startsWith("Shared Documents/")) {
+                            relPath = relPath.substring("Shared Documents/".length);
+                        } else if (relPath === "Shared Documents") {
+                            relPath = "";
+                        }
+                        relPath = relPath.replace(/\\/g, "/").replace(/\/$/, "");
+
+                        const itemPath = relPath ? `${relPath}/${newFilename}` : newFilename;
+
+                        logToWebConsole(`Checking if file already exists in SharePoint: ${newFilename}...`, "info");
+                        let checkRes = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${itemPath}`, {
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+
+                        if (checkRes.status === 200) {
+                            logToWebConsole(`File already exists in SharePoint, skipping: ${newFilename}`, "warning");
+                            totalSkipped++;
+                            continue;
+                        }
+
+                        logToWebConsole(`Uploading attachment: ${origName} -> ${newFilename} (Category: ${category})`, "info");
+                        
+                        const binaryStr = atob(att.contentBytes);
+                        const len = binaryStr.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) {
+                            bytes[i] = binaryStr.charCodeAt(i);
+                        }
+
+                        let uploadRes = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${itemPath}:/content`, {
+                            method: "PUT",
+                            headers: {
+                                "Authorization": `Bearer ${token}`,
+                                "Content-Type": att.contentType || "application/octet-stream"
+                            },
+                            body: bytes
+                        });
+
+                        if (uploadRes.status === 200 || uploadRes.status === 201) {
+                            logToWebConsole(`Successfully uploaded: ${newFilename} to ${finalPath}`, "success");
+                            totalUploaded++;
+                        } else {
+                            let errText = await uploadRes.text();
+                            logToWebConsole(`Upload failed for ${newFilename}: ${errText}`, "error");
+                            emailSuccess = false;
+                        }
+                    }
+
+                    if (emailSuccess) {
+                        totalProcessed++;
+                        if (!msg.isRead) {
+                            logToWebConsole("Marking email as READ...", "info");
+                            let markRes = await fetch(`https://graph.microsoft.com/v1.0/me/messages/${msgId}`, {
+                                method: "PATCH",
+                                headers: {
+                                    "Authorization": `Bearer ${token}`,
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ isRead: true })
+                            });
+                            if (markRes.ok) {
+                                logToWebConsole("Successfully marked email as READ.", "success");
+                            } else {
+                                logToWebConsole(`Failed to mark email as read (HTTP ${markRes.status})`, "warning");
+                            }
+                        }
+                    }
+                }
+            }
+
+            logToWebConsole(`Web Sync finished. Processed: ${totalProcessed} | Uploaded: ${totalUploaded} | Skipped: ${totalSkipped}`, "success");
+            alert(`Web Sync Completed!\nEmails Processed: ${totalProcessed}\nFiles Uploaded: ${totalUploaded}\nFiles Skipped (Duplicates): ${totalSkipped}`);
+
+        } catch (error) {
+            logToWebConsole(`Error during Web Sync: ${error.message || error}`, "error");
+            alert(`Sync Failed: ${error.message || error}`);
+        } finally {
+            btnRun.disabled = false;
+            btnRun.innerText = "Run Web Sync";
+        }
     }
 
     // Copy Code Helper
